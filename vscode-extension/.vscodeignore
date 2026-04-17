@@ -1,0 +1,8 @@
+.vscode/**
+**/.gitignore
+scripts/**
+*.vsix
+.vscode-test/**
+# Dev deps only; bundled/node_modules must ship with the CLI
+node_modules/**
+!bundled/node_modules/**

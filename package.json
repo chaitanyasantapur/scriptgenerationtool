@@ -1,0 +1,33 @@
+{
+  "name": "apitest-gen",
+  "version": "0.2.0",
+  "description": "Generate HTTP API test scaffolds from OpenAPI (REST) with optional GraphQL stubs — framework-agnostic defaults",
+  "type": "module",
+  "bin": {
+    "apitest-gen": "./src/cli.mjs"
+  },
+  "main": "./src/index.mjs",
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "test": "node --test test/*.test.mjs",
+    "lint": "node --check src/cli.mjs && node --check src/index.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "openapi",
+    "api",
+    "testing",
+    "jest",
+    "vitest",
+    "graphql",
+    "generator"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "commander": "^12.1.0"
+  }
+}
