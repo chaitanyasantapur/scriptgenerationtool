@@ -1,9 +1,9 @@
-# apitest-gen
+# scriptgenerationtool
 
-This repo bundles **automation scaffolding helpers**:
+This repository is for **two things**:
 
-1. **`apitest-gen` CLI** — **OpenAPI 3.x** (JSON or YAML) → **Jest** or **Vitest** API tests (`fetch` + env-based URL/auth), plus a **GraphQL** smoke stub.
-2. **Cursor skills** (no extra install) — workflows for **API test generation** and **Page Object (POM) generation** from a URL + element table.
+1. **Backend script generation (REST or GraphQL)** — **`apitest-gen` CLI**: **OpenAPI 3.x** → **Jest** or **Vitest** test scaffolds (`fetch` + env-based URL/auth), plus a **GraphQL** smoke stub.
+2. **Page Object builder** — **Cursor skill** for WebdriverIO-style **POMs** from a URL + element table (see `.cursor/skills/page-object-generator/`).
 
 > Generated code is **starter material** — review, harden selectors, and add real assertions before relying on it in CI.
 
@@ -146,8 +146,7 @@ You do **not** need a VS Code Marketplace extension for these — Cursor loads p
 
 ## Roadmap (ideas)
 
-- Optional **CLI** for Page Object templates (YAML → `.page.js`) alongside agent-driven flow
-- Prompt-driven API tests with schema grounding
+- Optional **CLI** for Page Object templates (YAML → `.page.js`) alongside the agent skill
 - Split OpenAPI output: one file per tag or operation
 - Stronger GraphQL: introspection + operation file → tests
 

@@ -1,5 +1,7 @@
 # Agent notes (Cursor / IDE)
 
+Scope of this repo: **(1)** backend test/script generation from **REST (OpenAPI)** or **GraphQL** stubs, **(2)** **page object** scaffolding via the page-object skill.
+
 ## API test generation (`apitest-gen` CLI)
 
 This repository ships **`apitest-gen`**, a CLI that generates API test scaffolds from **OpenAPI 3.x** and a **GraphQL** starter file.

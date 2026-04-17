@@ -90,5 +90,5 @@ If the user asks to open a PR:
 
 ## Out of scope
 
-- Fixing **Snyk** or dependency vulnerabilities (use a security-specific skill).
+- Dependency or supply-chain audits (use your org’s security tooling if needed).
 - Guaranteed passing tests against **private** APIs without user-supplied credentials.
