@@ -112,7 +112,7 @@ npx vsce login <publisher>
 npx vsce publish
 ```
 
-Change **`publisher`** in `vscode-extension/package.json` if your Marketplace ID differs from `chaitanyasantapur`.
+The **`publisher`** field in `vscode-extension/package.json` must match your Marketplace publisher ID (e.g. `krishnachaitanyasant`).
 
 ## Programmatic API
 
