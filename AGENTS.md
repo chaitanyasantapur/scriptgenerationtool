@@ -15,6 +15,17 @@ node src/cli.mjs openapi --spec ./examples/mini-openapi.json --out ./generated/s
 node src/cli.mjs graphql --out ./generated/graphql.generated.test.js
 ```
 
+### OpenAI tool agent (optional)
+
+Requires **`OPENAI_API_KEY`** (see `.env.example`). Runs an LLM that calls **validate / generate / read_file** tools under `--cwd` (default: current directory):
+
+```bash
+export OPENAI_API_KEY=sk-...
+node src/cli.mjs agent --prompt "Validate examples/mini-openapi.json and write tests to generated/agent.test.js"
+```
+
+Same capabilities as the CLI, orchestrated by the model — use **deterministic** `openapi` / `validate` commands in CI; the **agent** is for interactive use.
+
 ### Cursor skill — API tests
 
 `.cursor/skills/api-test-generator/SKILL.md`

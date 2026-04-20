@@ -16,6 +16,7 @@ Automates **scaffolding** of API tests (Jest or Vitest + `fetch`). Output is **d
 - **Node.js 18+** on the machine running the agent.
 - This repo root contains **`apitest-gen`** (`package.json` → `node src/cli.mjs` or `npx` after `npm link`).
 - From the **repository root**, run `npm install` if `node_modules` is missing.
+- **Optional — OpenAI tool agent:** set **`OPENAI_API_KEY`**, then run `node src/cli.mjs agent --prompt "..."` to let the model call validate/generate tools (see `README.md`). Not required for normal CLI use.
 
 ## When to use this skill
 

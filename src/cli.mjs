@@ -4,6 +4,7 @@ import path from 'node:path'
 import { generateFromOpenapi } from './generate/from-openapi.mjs'
 import { generateGraphqlStub } from './generate/from-graphql.mjs'
 import { validateOpenapi } from './generate/validate-openapi.mjs'
+import { runAgent } from './agent/run.mjs'
 
 const program = new Command()
 
@@ -12,7 +13,7 @@ program
   .description(
     'Generate API test scaffolds from OpenAPI (REST). GraphQL: use graphql command for a starter file.'
   )
-  .version('0.2.0')
+  .version('0.3.0')
 
 program
   .command('validate')
@@ -55,6 +56,40 @@ program
     console.log(
       `Wrote ${result.operations} operation(s) → ${result.outFile}`
     )
+  })
+
+program
+  .command('agent')
+  .description(
+    'Run the OpenAI tool-calling agent (requires OPENAI_API_KEY) to validate/generate tests via natural language'
+  )
+  .requiredOption('-p, --prompt <text>', 'What you want done (e.g. validate and generate from examples/mini-openapi.json)')
+  .option('--model <id>', 'OpenAI model id', process.env.OPENAI_MODEL || 'gpt-4o-mini')
+  .option('--max-steps <n>', 'Max LLM rounds (tool use counts as rounds)', '12')
+  .option('--cwd <path>', 'Workspace root for allowed file paths', process.cwd())
+  .action(async (opts) => {
+    const root = path.resolve(opts.cwd || process.cwd())
+    const maxSteps = parseInt(String(opts.maxSteps), 10) || 12
+    try {
+      const result = await runAgent({
+        prompt: opts.prompt,
+        root,
+        model: opts.model,
+        maxSteps,
+      })
+      for (const line of result.assistantMessages) {
+        if (line) console.log(line)
+      }
+      if (result.toolCalls.length) {
+        console.error(
+          `\n[agent] Used ${result.toolCalls.length} tool call(s):`,
+          result.toolCalls.map((t) => t.name).join(', ')
+        )
+      }
+    } catch (e) {
+      console.error(e.message || e)
+      process.exitCode = 1
+    }
   })
 
 program

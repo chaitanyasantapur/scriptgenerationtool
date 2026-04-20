@@ -71,6 +71,19 @@ apitest-gen graphql --out ./generated/graphql.test.js --runner vitest
 
 Uses `GRAPHQL_URL` or falls back to `API_BASE_URL` for the POST endpoint.
 
+### AI agent (OpenAI tool-calling)
+
+Runs an **LLM loop** that can call the same operations as the CLI (validate, generate OpenAPI tests, GraphQL stub, read files) — **requires `OPENAI_API_KEY`** (never commit it; use `.env` locally).
+
+```bash
+export OPENAI_API_KEY=sk-...   # or load from .env in your shell
+node src/cli.mjs agent --prompt "Validate examples/mini-openapi.json and generate tests to generated/agent.api.test.js"
+```
+
+Options: `--model gpt-4o-mini` (default), `--max-steps 12`, `--cwd /path/to/workspace` (paths in tools stay under this root).
+
+The agent is **optional**; deterministic commands (`openapi`, `validate`, `graphql`) work without any API key.
+
 ## Example
 
 ```bash
@@ -117,12 +130,20 @@ The **`publisher`** field in `vscode-extension/package.json` must match your Mar
 ## Programmatic API
 
 ```javascript
-import { generateFromOpenapi, listOperations } from 'apitest-gen'
+import { generateFromOpenapi, runAgent } from 'apitest-gen'
 
 await generateFromOpenapi({
   specPath: './openapi.yaml',
   outFile: './tests/api.generated.test.js',
   runner: 'jest',
+})
+
+// Optional: programmatic agent (needs OPENAI_API_KEY)
+await runAgent({
+  prompt: 'Validate and generate from ./openapi.yaml',
+  root: process.cwd(),
+  model: 'gpt-4o-mini',
+  maxSteps: 12,
 })
 ```
 

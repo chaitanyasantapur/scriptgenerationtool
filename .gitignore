@@ -6,4 +6,5 @@ coverage/
 generated/
 .env
 .env.*
+!.env.example
 vscode-extension/bundled/
