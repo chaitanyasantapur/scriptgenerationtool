@@ -2,7 +2,7 @@
   "name": "apitest-gen",
   "displayName": "apitest-gen",
   "description": "Generate API test scaffolds from OpenAPI (REST) and GraphQL stubs using the apitest-gen CLI.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "krishnachaitanyasant",
   "engines": {
     "vscode": "^1.85.0"
