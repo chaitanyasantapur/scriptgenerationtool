@@ -3,7 +3,7 @@
 This repository is for **two things**:
 
 1. **Backend script generation (REST or GraphQL)** — **`apitest-gen` CLI**: **OpenAPI 3.x** → **Jest** or **Vitest** test scaffolds (`fetch` + env-based URL/auth), plus a **GraphQL** smoke stub.
-2. **Page Object builder** — **Cursor skill** for WebdriverIO-style **POMs** from a URL + element table (see `.cursor/skills/page-object-generator/`).
+2. **Page Object builder** — **Cursor skill** for WebdriverIO-style **POMs** from a URL + element table (see `.cursor/skills/page-object-generator/`), plus **CLI / extension** commands **`wdio-page`** and **`wdio-spec`** for minimal **scaffolds** (default export Page class + `describe`/`it` skeleton — refine selectors and steps in your repo).
 
 > Generated code is **starter material** — review, harden selectors, and add real assertions before relying on it in CI.
 
@@ -71,6 +71,20 @@ apitest-gen graphql --out ./generated/graphql.test.js --runner vitest
 
 Uses `GRAPHQL_URL` or falls back to `API_BASE_URL` for the POST endpoint.
 
+### WebdriverIO scaffolds (deterministic)
+
+Minimal **Page Object** and **spec** files for **WebdriverIO** — starter code only; match your project’s imports, waits, and Chai patterns after generation.
+
+```bash
+# Page class with pagePath + open() + TODO for getters
+apitest-gen wdio-page --out ./test/pageobjects/learner/Course.page.js --name CoursePage --url /courses/uuid
+
+# Spec: browser.url only, or import an existing Page class
+apitest-gen wdio-spec --out ./test/specs/learner/course.spec.js --title "Course flow" --url /courses/uuid
+apitest-gen wdio-spec --out ./test/specs/x.spec.js --title "Flow" \
+  --page-import ../../pageobjects/learner/Course.page.js --page-class CoursePage
+```
+
 ### AI agent (OpenAI tool-calling)
 
 Runs an **LLM loop** that can call the same operations as the CLI (validate, generate OpenAPI tests, GraphQL stub, read files) — **requires `OPENAI_API_KEY`** (never commit it; use `.env` locally).
@@ -82,7 +96,7 @@ node src/cli.mjs agent --prompt "Validate examples/mini-openapi.json and generat
 
 Options: `--model gpt-4o-mini` (default), `--max-steps 12`, `--cwd /path/to/workspace` (paths in tools stay under this root).
 
-The agent is **optional**; deterministic commands (`openapi`, `validate`, `graphql`) work without any API key.
+The agent is **optional**; deterministic commands (`openapi`, `validate`, `graphql`, `wdio-page`, `wdio-spec`) work without any API key.
 
 ## Example
 
@@ -103,7 +117,7 @@ The **`vscode-extension/`** folder is a marketplace-ready wrapper around the sam
 
 1. `cd vscode-extension && npm install`
 2. In VS Code or Cursor: **Run → Start Debugging**, or **F5** with “Launch Extension” (add `.vscode/launch.json` if you want one-click debug).
-3. In the Extension Development Host window, open a folder that contains an OpenAPI file, then run **Command Palette → “apitest-gen:”** commands.
+3. In the Extension Development Host window, open a workspace folder, then run **Command Palette → “apitest-gen:”** — OpenAPI validate/generate, GraphQL stub, **WebdriverIO Page Object**, and **WebdriverIO spec** scaffolds.
 
 **Build a `.vsix` for side-loading or publishing**
 
@@ -116,7 +130,7 @@ npm run bundle   # copies CLI + production deps into bundled/
 npx vsce package --no-dependencies
 ```
 
-This produces `apitest-gen-0.2.0.vsix`. Install: **Extensions → … → Install from VSIX…**
+This produces `apitest-gen-0.4.0.vsix` (version follows `vscode-extension/package.json`). Install: **Extensions → … → Install from VSIX…**
 
 **Publish to the Marketplace** (one-time: [Azure DevOps publisher](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#create-a-publisher), Personal Access Token), then:
 
@@ -130,12 +144,29 @@ The **`publisher`** field in `vscode-extension/package.json` must match your Mar
 ## Programmatic API
 
 ```javascript
-import { generateFromOpenapi, runAgent } from 'apitest-gen'
+import {
+  generateFromOpenapi,
+  runAgent,
+  generateWdioPageObject,
+  generateWdioSpec,
+} from 'apitest-gen'
 
 await generateFromOpenapi({
   specPath: './openapi.yaml',
   outFile: './tests/api.generated.test.js',
   runner: 'jest',
+})
+
+await generateWdioPageObject({
+  outFile: './test/pageobjects/My.page.js',
+  className: 'MyPage',
+  urlPath: '/',
+})
+
+await generateWdioSpec({
+  outFile: './test/specs/my.spec.js',
+  suiteTitle: 'Smoke',
+  urlPath: '/',
 })
 
 // Optional: programmatic agent (needs OPENAI_API_KEY)

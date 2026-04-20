@@ -34,3 +34,12 @@ jobs:
           test -s generated/ci-smoke.test.js
           grep -q "toMatchObject" generated/ci-smoke.test.js
           grep -q "JSON.stringify" generated/ci-smoke.test.js
+
+      - name: WDIO scaffolds (smoke)
+        run: |
+          node src/cli.mjs wdio-page --out generated/ci-wdio.page.js --name CiPage --url /ci
+          test -s generated/ci-wdio.page.js
+          grep -q "export default class CiPage" generated/ci-wdio.page.js
+          node src/cli.mjs wdio-spec --out generated/ci-wdio.spec.js --title CI --url /
+          test -s generated/ci-wdio.spec.js
+          grep -q "describe(" generated/ci-wdio.spec.js

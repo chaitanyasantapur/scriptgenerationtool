@@ -162,6 +162,148 @@ export function activate(context) {
       }
     })
   )
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('apitest-gen.wdioPageScaffold', async () => {
+      const root = workspaceRoot()
+      if (!root) {
+        vscode.window.showWarningMessage('Open a folder/workspace first.')
+        return
+      }
+      const nameIn = await vscode.window.showInputBox({
+        title: 'Page class name',
+        placeHolder: 'e.g. CourseNotesPage or course-notes',
+        value: 'MyFeaturePage',
+      })
+      if (!nameIn) return
+      const urlPath = await vscode.window.showInputBox({
+        title: 'URL path (after baseUrl)',
+        value: '/',
+      })
+      if (urlPath === undefined) return
+      const defaultOut = path.join(root, 'generated', 'wdio', 'MyFeature.page.js')
+      const out = await vscode.window.showInputBox({
+        title: 'Output Page Object file',
+        value: defaultOut,
+      })
+      if (!out) return
+      const { cliPath, moduleRoot } = resolveCli(context.extensionPath)
+      channel.clear()
+      channel.show(true)
+      try {
+        await runCli(
+          moduleRoot,
+          cliPath,
+          [
+            'wdio-page',
+            '--out',
+            out,
+            '--name',
+            nameIn,
+            '--url',
+            urlPath || '/',
+          ],
+          root,
+          channel
+        )
+        vscode.window.showInformationMessage(`Wrote WDIO Page Object: ${out}`)
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e)
+        vscode.window.showErrorMessage(`wdio-page failed: ${msg}`)
+      }
+    })
+  )
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('apitest-gen.wdioSpecScaffold', async () => {
+      const root = workspaceRoot()
+      if (!root) {
+        vscode.window.showWarningMessage('Open a folder/workspace first.')
+        return
+      }
+      const title = await vscode.window.showInputBox({
+        title: 'Spec describe() title',
+        value: 'Feature flow',
+      })
+      if (!title) return
+      const mode = await vscode.window.showQuickPick(
+        ['browser.url skeleton', 'Import Page class'],
+        { placeHolder: 'Spec style' }
+      )
+      if (!mode) return
+      const defaultOut = path.join(root, 'generated', 'wdio', 'feature.spec.js')
+      if (mode === 'browser.url skeleton') {
+        const urlPath = await vscode.window.showInputBox({
+          title: 'Starting URL path',
+          value: '/',
+        })
+        if (urlPath === undefined) return
+        const out = await vscode.window.showInputBox({
+          title: 'Output spec file',
+          value: defaultOut,
+        })
+        if (!out) return
+        const args = [
+          'wdio-spec',
+          '--out',
+          out,
+          '--title',
+          title,
+          '--url',
+          urlPath || '/',
+        ]
+        const { cliPath, moduleRoot } = resolveCli(context.extensionPath)
+        channel.clear()
+        channel.show(true)
+        try {
+          await runCli(moduleRoot, cliPath, args, root, channel)
+          vscode.window.showInformationMessage(`Wrote WDIO spec: ${out}`)
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e)
+          vscode.window.showErrorMessage(`wdio-spec failed: ${msg}`)
+        }
+        return
+      }
+      const pageImport = await vscode.window.showInputBox({
+        title: 'Relative import path to Page file',
+        value: '../pageobjects/learner/my.page.js',
+      })
+      if (!pageImport) return
+      const pageClass = await vscode.window.showInputBox({
+        title: 'Imported class name',
+        value: 'MyFeaturePage',
+      })
+      if (!pageClass) return
+      const outPage = await vscode.window.showInputBox({
+        title: 'Output spec file',
+        value: defaultOut,
+      })
+      if (!outPage) return
+      const argsPage = [
+        'wdio-spec',
+        '--out',
+        outPage,
+        '--title',
+        title,
+        '--page-import',
+        pageImport,
+        '--page-class',
+        pageClass,
+      ]
+      const { cliPath: cliPath2, moduleRoot: moduleRoot2 } = resolveCli(
+        context.extensionPath
+      )
+      channel.clear()
+      channel.show(true)
+      try {
+        await runCli(moduleRoot2, cliPath2, argsPage, root, channel)
+        vscode.window.showInformationMessage(`Wrote WDIO spec: ${outPage}`)
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e)
+        vscode.window.showErrorMessage(`wdio-spec failed: ${msg}`)
+      }
+    })
+  )
 }
 
 /** @param {string} workspaceRoot */

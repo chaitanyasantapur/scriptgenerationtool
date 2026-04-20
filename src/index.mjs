@@ -8,3 +8,8 @@ export { runAgent } from './agent/run.mjs'
 export { executeTool, AGENT_TOOLS } from './agent/execute-tools.mjs'
 export { listOperations } from './lib/openapi-operations.mjs'
 export { renderSuite, renderGraphqlStub } from './lib/render-tests.mjs'
+export {
+  generateWdioPageObject,
+  generateWdioSpec,
+  toPageClassName,
+} from './generate/from-wdio.mjs'

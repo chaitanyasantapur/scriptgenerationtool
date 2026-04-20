@@ -5,15 +5,20 @@ import { generateFromOpenapi } from './generate/from-openapi.mjs'
 import { generateGraphqlStub } from './generate/from-graphql.mjs'
 import { validateOpenapi } from './generate/validate-openapi.mjs'
 import { runAgent } from './agent/run.mjs'
+import {
+  generateWdioPageObject,
+  generateWdioSpec,
+  toPageClassName,
+} from './generate/from-wdio.mjs'
 
 const program = new Command()
 
 program
   .name('apitest-gen')
   .description(
-    'Generate API test scaffolds from OpenAPI (REST). GraphQL: use graphql command for a starter file.'
+    'Generate API test scaffolds from OpenAPI (REST), GraphQL stubs, and optional WebdriverIO POM/spec scaffolds.'
   )
-  .version('0.3.0')
+  .version('0.4.0')
 
 program
   .command('validate')
@@ -108,6 +113,56 @@ program
     const runner = opts.runner === 'vitest' ? 'vitest' : 'jest'
     const result = await generateGraphqlStub({ outFile, runner })
     console.log(`Wrote GraphQL stub → ${result.outFile}`)
+  })
+
+program
+  .command('wdio-page')
+  .description('Generate a minimal WebdriverIO Page Object class (edit selectors to match your app)')
+  .requiredOption('-o, --out <path>', 'Output file (e.g. ./test/pageobjects/learner/foo.page.js)')
+  .requiredOption('-n, --name <ClassName>', 'Page class name (e.g. CoursePage or course-page)')
+  .option('-u, --url <path>', 'URL path after baseUrl', '/')
+  .action(async (opts) => {
+    const outFile = path.resolve(opts.out)
+    const className = toPageClassName(opts.name)
+    const urlPath = opts.url || '/'
+    const result = await generateWdioPageObject({
+      outFile,
+      className,
+      urlPath,
+    })
+    console.log(`Wrote WDIO Page Object ${className} → ${result.outFile}`)
+  })
+
+program
+  .command('wdio-spec')
+  .description('Generate a minimal WebdriverIO spec file (describe/it skeleton)')
+  .requiredOption('-o, --out <path>', 'Output file (e.g. ./test/specs/learner/foo.spec.js)')
+  .option('-t, --title <text>', 'Top-level describe title', 'WDIO spec')
+  .option('-u, --url <path>', 'Starting path when not using --page-import', '/')
+  .option('--page-import <path>', 'Relative import path to a Page class (e.g. ../../pageobjects/x.page.js)')
+  .option('--page-class <name>', 'Imported class name (required with --page-import)')
+  .action(async (opts) => {
+    const outFile = path.resolve(opts.out)
+    const pageImport = opts.pageImport
+    const pageClass = opts.pageClass
+    if (pageImport && !pageClass) {
+      console.error('When using --page-import, also pass --page-class')
+      process.exitCode = 1
+      return
+    }
+    if (pageClass && !pageImport) {
+      console.error('When using --page-class, also pass --page-import')
+      process.exitCode = 1
+      return
+    }
+    const result = await generateWdioSpec({
+      outFile,
+      suiteTitle: opts.title,
+      urlPath: opts.url || '/',
+      pageImport,
+      pageClass,
+    })
+    console.log(`Wrote WDIO spec → ${result.outFile}`)
   })
 
 program.parse()

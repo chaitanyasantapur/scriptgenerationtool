@@ -1,10 +1,10 @@
 ---
 name: api-test-generator
 description: >-
-  Generates REST API tests from OpenAPI 3.x specs and GraphQL smoke-test stubs using
-  the apitest-gen CLI in this repository. Use when the user asks to scaffold API tests,
-  generate tests from openapi.yaml/openapi.json, create GraphQL HTTP tests, or run the
-  api-test-generator workflow.
+  Generates REST API tests from OpenAPI 3.x specs, GraphQL smoke-test stubs, and
+  minimal WebdriverIO Page Object / spec scaffolds using the apitest-gen CLI in this
+  repository. Use when the user asks to scaffold API tests, GraphQL stubs, WDIO POM/spec
+  starters, or run the api-test-generator workflow.
 ---
 
 # API test generator (apitest-gen)
@@ -20,8 +20,8 @@ Automates **scaffolding** of API tests (Jest or Vitest + `fetch`). Output is **d
 
 ## When to use this skill
 
-- User wants **OpenAPI → test file(s)** or a **GraphQL placeholder** test.
-- User says “generate API tests”, “scaffold REST tests”, “tests from swagger/openapi”, “GraphQL smoke test”.
+- User wants **OpenAPI → test file(s)**, a **GraphQL placeholder** test, or **WDIO Page Object / spec** starters (`wdio-page`, `wdio-spec`).
+- User says “generate API tests”, “scaffold REST tests”, “tests from swagger/openapi”, “GraphQL smoke test”, “WDIO page object scaffold”, “empty spec file”.
 
 ## Critical rules
 
@@ -64,19 +64,34 @@ Prefer output paths **outside** this tool repo if the user wants tests in **thei
 node src/cli.mjs graphql --out <ABS_PATH_TO_OUTPUT_FILE> [--runner jest|vitest]
 ```
 
+The GraphQL command emits a **minimal smoke test** (`query { __typename }`). It does **not** read a `schema.graphql` or generate per-field tests. For a **named query** (e.g. BFF `getLearningReinforcement`), use the stub as the **template**: keep the same `fetch` + `GRAPHQL_URL` / `API_BASE_URL` + env-based auth pattern, then replace `query` / `variables` and add assertions against `data` (or the shape your client actually receives).
+
 Remind the user: stub posts to `GRAPHQL_URL` or `API_BASE_URL`; they must set real URLs and auth.
 
-### 5. Validate
+### 5. Generate (WebdriverIO scaffolds)
+
+Deterministic **starter files** for **WebdriverIO** — user must align with their repo’s imports, Chai, and waits.
+
+```bash
+node src/cli.mjs wdio-page --out <ABS_OUT.page.js> --name <ClassOrSlug> --url <path>
+node src/cli.mjs wdio-spec --out <ABS_OUT.spec.js> --title "<describe>" --url <path>
+node src/cli.mjs wdio-spec --out <ABS_OUT.spec.js> --title "<describe>" \
+  --page-import <relative/path/to/page.js> --page-class <ClassName>
+```
+
+For **rich** POMs from an element table + @reference file, use **`.cursor/skills/page-object-generator/SKILL.md`** instead.
+
+### 6. Run tests and verify
 
 - Run **`npm test`** in **this** repo after changing the generator.
 - For **generated files** in another project: `cd` to that project and run its `npm test` / `npx vitest run` with `API_BASE_URL` set to a safe stub (e.g. public `https://httpbin.org` or local mock) **only if** the user provided or approved a URL.
 
-### 6. Documentation for the user
+### 7. Documentation for the user
 
 - Tell the user to set **`API_BASE_URL`** (required) and optionally **`API_AUTH_HEADER`** before running generated tests.
 - Point to **`README.md`** in this repo for full CLI flags.
 
-### 7. Optional: Pull request
+### 8. Optional: Pull request
 
 If the user asks to open a PR:
 

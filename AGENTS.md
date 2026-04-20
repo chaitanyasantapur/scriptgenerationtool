@@ -13,6 +13,8 @@ npm install
 node src/cli.mjs validate --spec ./examples/mini-openapi.json
 node src/cli.mjs openapi --spec ./examples/mini-openapi.json --out ./generated/sample.api.test.js
 node src/cli.mjs graphql --out ./generated/graphql.generated.test.js
+node src/cli.mjs wdio-page --out ./generated/wdio.page.js --name SamplePage --url /
+node src/cli.mjs wdio-spec --out ./generated/wdio.spec.js --title Smoke --url /
 ```
 
 ### OpenAI tool agent (optional)
@@ -42,9 +44,13 @@ Never commit real tokens. Use `.env` / CI secrets.
 
 ---
 
-## Page Object generation (agent-only)
+## WebdriverIO scaffolds (CLI + extension)
 
-There is **no CLI** in this repo for POMs yet — the agent follows:
+Deterministic **`wdio-page`** and **`wdio-spec`** commands emit minimal Page Object / spec files (edit selectors and steps to match your WDIO repo). The **VS Code extension** exposes the same from the Command Palette.
+
+## Page Object generation (Cursor skill — richer output)
+
+For **full** POMs from an **element table** + **@reference** file, use the agent with:
 
 `.cursor/skills/page-object-generator/SKILL.md`
 
